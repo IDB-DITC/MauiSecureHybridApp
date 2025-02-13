@@ -1,0 +1,64 @@
+﻿@page "/login"
+@inject NavigationManager Navigation
+@inject ICustomAuthenticationStateProvider AuthStateProvider
+
+<h3>Login to Access Application</h3>
+
+<EditForm Model="LoginModel" OnValidSubmit="LoginUser" FormName="login">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <SfMessage ShowCloseIcon=true ShowIcon=true Variant="MessageVariant.Filled">@LoginModel.LoginFailureMessage </SfMessage>
+
+    @*    <div class="alert alert-danger" hidden="@loginFailureHidden">
+        @LoginModel.LoginFailureMessage
+    </div> *@
+    <div class="form-group">
+        <label for="email">Email</label>
+        <SfTextBox id="email"  Placeholder='User email' @bind-Value="@LoginModel.Email"></SfTextBox>
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <SfTextBox id="password" type="InputType.Password"  Placeholder='Password' @bind-Value="@LoginModel.Password"></SfTextBox>
+
+    </div>
+    <div class="form-group mt-1">
+        <SfCheckBox Label="Remember Me?" @bind-Checked="LoginModel.RememberMe"></SfCheckBox>
+    </div> 
+    <div class="form-group mt-1">
+        <SfButton type="submit"  CssClass="e-outline w-100" IsToggle="false" IsPrimary="true" Content="Login"></SfButton>
+    </div>
+</EditForm>
+
+@code {
+
+
+    private string? returnUrl { get; set; } 
+    private LoginModel LoginModel { get; set; } = new();
+    private bool loginFailureHidden = true;
+
+    protected override void OnInitialized()    {
+
+        returnUrl = Navigation.GetUriWithQueryParameter("returnUrl", returnUrl);
+        if (returnUrl != null && returnUrl.EndsWith("login"))
+            returnUrl = null;
+
+        if (AuthStateProvider.LoginStatus == LoginStatus.Failed)
+        {            
+            loginFailureHidden = false;
+        }        
+    }
+
+    private async Task LoginUser()
+    {
+        await AuthStateProvider.LogInAsync(LoginModel);
+
+        if (AuthStateProvider.LoginStatus != LoginStatus.Success)
+        {
+
+            loginFailureHidden = false;
+            return;
+        }
+
+        Navigation.NavigateTo(returnUrl?? ""); //Root URL
+    }
+}
