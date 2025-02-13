@@ -1,0 +1,16 @@
+﻿@using MauiSecureApp.Components.Pages
+@using Microsoft.AspNetCore.Components.Authorization
+
+<Router AppAssembly="typeof(MauiProgram).Assembly">
+    <Found Context="routeData">
+       <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
+            <Authorizing>
+                Authorizing...
+            </Authorizing>
+            <NotAuthorized>
+                <Login />
+            </NotAuthorized>
+        </AuthorizeRouteView>   
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+</Router>
